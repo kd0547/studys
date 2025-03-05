@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,5 +24,29 @@ public class BoardService {
         return boards.stream()
                 .map(BoardDto::createDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Long createPost(BoardDto boardDto) {
+        return boardRepository.save(boardDto);
+    }
+
+    @Transactional
+    public BoardDto postView(Long id, boolean viewPost) {
+        Optional<Board> findBoard = boardRepository.findById(id);
+        return findBoard.map(board -> {
+            if(viewPost) {
+                board.addView();
+            }
+            return BoardDto.createDto(board);
+        }).orElseThrow(() ->
+                new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+    }
+
+    @Transactional
+    public void postLiked(long id) {
+        if(boardRepository.updateLike(id) == 0) {
+            throw new IllegalArgumentException("해당 게시글이 존재하지 않습니다.");
+        }
     }
 }

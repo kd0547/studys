@@ -61,7 +61,9 @@
     <thead>
     <tr>
         <th>번호</th>
+        <th style="width:50px">조회수</th>
         <th>제목</th>
+        <th style="width:50px">좋아요</th>
         <th>작성자</th>
         <th>작성일</th>
     </tr>
@@ -70,10 +72,12 @@
     <!-- 게시글 목록을 반복 -->
     <tr th:each="board : ${boardList}">
         <td th:text="${board.id}"></td>
+        <td th:text="${board.viewCount}"></td>
         <td>
-            <a th:href="@{/board/{id}(id=${board.id})}"
+            <a th:href="@{/post/{id}(id=${board.id})}"
                th:text="${board.title}"></a>
         </td>
+        <td th:text="${board.like}"></td>
         <td th:text="${board.author}"></td>
         <td th:text="${#temporals.format(board.createAt, 'yyyy-MM-dd HH:mm')}"></td>
     </tr>

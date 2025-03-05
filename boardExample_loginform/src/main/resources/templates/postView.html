@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${post.title}">게시글 제목</title>
+    <style>
+        .post-container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .post-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .post-meta {
+            font-size: 14px;
+            color: #666;
+        }
+        .post-content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .post-footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+        }
+        .action-buttons {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .action-buttons input[type="submit"] {
+            padding: 8px 16px;
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .action-buttons input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="post-container">
+    <div class="post-header">
+        <div class="post-title" th:text="${post.title}">게시글 제목</div>
+        <div class="post-meta">
+            작성자: <span th:text="${post.author}">작성자</span> |
+            작성일: <span th:text="${#temporals.format(post.createAt, 'yyyy-MM-dd HH:mm')}">작성일</span> |
+            조회수: <span th:text="${post.viewCount}">0</span>
+        </div>
+    </div>
+    <div class="post-content" th:text="${post.subject}">
+        게시글 내용이 여기에 표시됩니다.
+    </div>
+    <!-- 좋아요 버튼 추가 -->
+    <div class="action-buttons">
+        <button id="like-button" type="button" th:attr="data-post-id=${post.id}, data-likes-count=${post.like}"  th:text="${ '좋아요 ' + post.like}">좋아요</button>
+    </div>
+</div>
+<script>
+    document.getElementById("like-button").addEventListener('click', function() {
+        var postId = this.getAttribute("data-post-id");
+        var dataPostId = document.getElementById("like-button");
+        var likesCount = parseInt(dataPostId.getAttribute("data-likes-count"), 10);
+
+        fetch("/post/"+postId+"/like", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+            .then(function (response) {
+                if(!response.ok) {
+                    throw new Error("네트워크 응답이 정상적이지 않습니다.");
+                }
+                likesCount++;
+                dataPostId.setAttribute("data-likes-count",likesCount);
+                document.getElementById("like-button").innerText = "좋아요 " + likesCount;
+                }
+            )
+            .catch(function(error) {
+                console.error("좋아요 처리 중 에러 발생:", error);
+            });
+    })
+</script>
+</body>
+</html>
