@@ -1,10 +1,11 @@
 package com.example.boardexample.controller;
 
 import com.example.boardexample.dto.BoardDto;
+import com.example.boardexample.dto.BoardResponseDto;
 import com.example.boardexample.service.BoardService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,19 +22,41 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @GetMapping("/list")
+    @GetMapping(value = "/list",produces = MediaType.TEXT_HTML_VALUE)
     public String view(
             @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "ALL") String category,
             Model model) {
-        List<BoardDto> boardList = boardService.view(page);
+        BoardResponseDto boardResponseDto = boardService.view(page,category);
+        List<BoardDto> boardList = boardResponseDto.getBoards();
+
         PageDto pageDto = new PageDto();
-        pageDto.setTotalPage(1000L);
+        pageDto.setTotalPage(boardResponseDto.getBoardCount());
         pageDto.setNumber((long)page);
 
         model.addAttribute("boardList",boardList);
         model.addAttribute("page",pageDto);
+        model.addAttribute("choseCategory",category);
 
         return "boardView";
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/list",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String,Object>> viewJson(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "ALL") String category
+            ) {
+        BoardResponseDto boardResponseDto =  boardService.view(page, category);
+        PageDto pageDto = new PageDto();
+        pageDto.setTotalPage(boardResponseDto.getBoardCount());
+        pageDto.setNumber((long)page);
+
+        Map<String,Object> response = new HashMap<>();
+        response.put("boardList",boardResponseDto.getBoards());
+        response.put("page",pageDto);
+
+        return ResponseEntity.ok(response);
     }
 
 
@@ -41,12 +64,13 @@ public class BoardController {
     public String postView(
             HttpServletRequest request,
             @PathVariable Long id,
+            @RequestParam int page,
             Model model) {
 
         boolean viewPost = Boolean.TRUE.equals(request.getAttribute("viewPost"));
-
         BoardDto boardDto = boardService.postView(id,viewPost);
         model.addAttribute("post",boardDto);
+        model.addAttribute("page",page);
 
         return "postView";
     }

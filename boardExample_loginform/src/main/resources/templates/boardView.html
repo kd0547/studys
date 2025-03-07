@@ -3,116 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <title>게시판</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
     <style>
-        table {
-            width: 80%;
-            border-collapse: collapse;
-            margin: 20px auto;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px 12px;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        h1 {
-            text-align: center;
-        }
-        .new-post {
-            text-align: center;
-            margin: 20px;
-        }
-        /* 페이징 영역 가로 정렬 및 중앙 정렬 */
-        .pagination {
-            text-align: center;
-            margin: 20px;
-        }
-        .pagination ul {
-            list-style: none;
-            padding: 0;
-            margin: 0 auto;
-            display: inline-block;
-        }
-        .pagination ul li {
-            display: inline;
-            margin: 0 5px;
-        }
-        .pagination ul li a,
-        .pagination ul li span {
-            display: inline-block;
-            padding: 6px 12px;
-            border: 1px solid #ccc;
-            text-decoration: none;
-            color: #333;
-        }
-        .pagination ul li span {
-            background-color: #ddd;
-            font-weight: bold;
+        body { background-color: #f8f9fa; }
+        .category-btn-group .btn.active { background-color: #0d6efd; color: #fff; }
+        .pagination { justify-content: center; }
+        .table thead { background-color: #f1f3f5; }
+        .table a { text-decoration: none; color: #495057; }
+        .table a:hover { color: #0d6efd; }
+        .pagination .active .page-link { background-color: #0d6efd; border-color: #0d6efd; color: white; }
+        .pagination .page-link { color: #0d6efd; }
+        .pagination .page-link:hover { background-color: #e9ecef; }
+        .title-cell {
+            max-width: 400px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-
+        .author-cell {
+            max-width: 70px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
-<h1>게시판</h1>
-<table>
-    <thead>
-    <tr>
-        <th>번호</th>
-        <th style="width:50px">조회수</th>
-        <th>제목</th>
-        <th style="width:50px">좋아요</th>
-        <th>작성자</th>
-        <th>작성일</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- 게시글 목록을 반복 -->
-    <tr th:each="board : ${boardList}">
-        <td th:text="${board.id}"></td>
-        <td th:text="${board.viewCount}"></td>
-        <td>
-            <a th:href="@{/post/{id}(id=${board.id})}"
-               th:text="${board.title}"></a>
-        </td>
-        <td th:text="${board.like}"></td>
-        <td th:text="${board.author}"></td>
-        <td th:text="${#temporals.format(board.createAt, 'yyyy-MM-dd HH:mm')}"></td>
-    </tr>
-    </tbody>
-</table>
+<div class="container py-5">
+    <h2 class="text-center mb-4">게시판</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="category-btn-group">
+            <a th:classappend="${choseCategory == 'ALL'} ? 'active' : ''"
+               href="/list?category=ALL"
+               class="btn btn-outline-primary mx-1"
+               data-category="ALL" >ALL</a>
+            <a th:classappend="${choseCategory == 'NOTICE'} ? 'active' : ''"
+               href="/list?category=NOTICE"
+               class="btn btn-outline-primary mx-1" data-category="NOTICE">
+                알림</a>
+            <a th:classappend="${choseCategory == 'FREE'} ? 'active' : ''"
+               href="/list?category=FREE"
+               class="btn btn-outline-primary mx-1" data-category="FREE">
+                자유</a>
+            <a th:classappend="${choseCategory == 'QUESTION'} ? 'active' : ''"
+               href="/list?category=QUESTION"
+               class="btn btn-outline-primary mx-1" data-category="QUESTION">
+                질문</a>
+            <a th:classappend="${choseCategory == 'INFORMATION'} ? 'active' : ''"
+               href="/list?category=INFORMATION"
+               class="btn btn-outline-primary mx-1" data-category="INFORMATION">
+                정보</a>
+        </div>
+        <a href="/board/new" class="btn btn-primary">새 글 작성하기</a>
+    </div>
 
-<!-- 페이징 네비게이션 (10개씩 페이지 번호 표시) -->
-<div class="pagination" th:if="${page.totalPage > 1}">
-    <!-- th:block을 이용해 지역 변수를 선언 -->
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th style="width: 70px">번호</th>
+            <th style="width: 60px">조회수</th>
+            <th style=" width:400px">제목</th>
+            <th style=" width:60px">좋아요</th>
+            <th style="width: 70px; max-width: 70px">작성자</th>
+            <th style="width: 100px;">작성일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 게시글 목록을 반복 -->
+        <tr th:each="board : ${boardList}">
+            <td th:text="${board.id}"></td>
+            <td  th:text="${board.viewCount}"></td>
+            <td class="title-cell">
+                <a th:href="@{/post/{id}(id=${board.id},page=${page.number})}"
+                   th:text="${board.title}">
+
+                </a>
+            </td>
+            <td th:text="${board.like}"></td>
+            <td class="author-cell" th:text="${board.author}"></td>
+            <td th:text="${#temporals.format(board.createAt, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<nav aria-label="Page navigation" th:if="${page.totalPage > 1}">
     <th:block th:with="currentPage=${page.number},
                        totalPages=${page.totalPage},
                        startPage=${(((currentPage - 1 == 0 ? 1 : currentPage - 1) / 10) * 10) + 1},
                        endPage=${startPage + 9}">
-        <ul>
-            <!-- 이전 페이지 그룹 링크: startPage가 1보다 크면 이전 그룹 페이지로 이동 -->
-            <li th:if="${startPage > 1}">
-                <a th:href="@{/list(page=${startPage - 1})}">이전</a>
-            </li>
 
-            <!-- 페이지 번호 반복 (startPage ~ endPage), 단 totalPages 미만인 경우만 표시 -->
-            <li th:each="i : ${#numbers.sequence(startPage, endPage)}" th:if="${i < totalPages}">
-                <a th:if="${currentPage != i}" th:href="@{/list(page=${i})}" th:text="${i}"></a>
-                <span th:if="${currentPage == i}" th:text="${i}"></span>
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${startPage <= 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/list(page=${startPage - 1},category=${choseCategory})}">이전</a>
             </li>
-
-            <!-- 다음 페이지 그룹 링크: endPage가 totalPages - 1보다 작으면 다음 그룹 페이지로 이동 -->
-            <li th:if="${endPage < totalPages + 1}">
-                <a th:href="@{/list(page=${endPage + 1})}">다음</a>
+            <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}" th:if="${i <= totalPages}"
+                th:classappend="${currentPage == i} ? 'active'">
+                <a class="page-link" th:href="@{/list(page=${i},category=${choseCategory})}" th:text="${i}"></a>
+            </li>
+            <li class="page-item" th:classappend="${endPage >= totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/list(page=${endPage + 1},category=${choseCategory})}">다음</a>
             </li>
         </ul>
     </th:block>
-</div>
+</nav>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelector('.category-btn-group').addEventListener('click',function (e) {
+        const clickButton = e.target.closest('a');
+        if (!clickButton) return;
 
-<div class="new-post">
-    <a href="/board/new">새 글 작성하기</a>
-</div>
+        this.querySelectorAll('a').forEach(btn => btn.classList.remove('acvive'));
+        const category = clickButton.dataset.category;
+        console.log("선택된 카테고리:", category);
+
+    });
+</script>
 </body>
 </html>

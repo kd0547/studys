@@ -1,5 +1,7 @@
 package com.example.boardexample.service;
 
+import com.example.boardexample.category.BoardCategory;
+import com.example.boardexample.dto.BoardResponseDto;
 import com.example.boardexample.entity.Board;
 import com.example.boardexample.dto.BoardDto;
 import com.example.boardexample.repository.BoardRepository;
@@ -18,12 +20,24 @@ public class BoardService {
     private final BoardRepository boardRepository;
 
     @Transactional
-    public List<BoardDto> view(int page) {
-        List<Board> boards = boardRepository.findPage(page);
-
-        return boards.stream()
-                .map(BoardDto::createDto)
-                .collect(Collectors.toList());
+    public BoardResponseDto view(int page, String category) {
+        List<Board> boards;
+        Long boardCount = 0L;
+        List<BoardDto> list = List.of();
+        if(category.equals(BoardCategory.ALL.toString())) {
+            boards = boardRepository.findPage(page);
+            boardCount = boardRepository.CountById();
+            list = boards.stream()
+                    .map(BoardDto::createDto)
+                    .collect(Collectors.toList());
+        } else {
+            boards = boardRepository.findPageByFilter(page,category);
+            list = boards.stream()
+                    .map(BoardDto::createDto)
+                    .collect(Collectors.toList());
+            boardCount = boardRepository.CountByIdFilter(category);
+        }
+        return  new BoardResponseDto(boardCount, list);
     }
 
     @Transactional
@@ -34,11 +48,16 @@ public class BoardService {
     @Transactional
     public BoardDto postView(Long id, boolean viewPost) {
         Optional<Board> findBoard = boardRepository.findById(id);
+
         return findBoard.map(board -> {
             if(viewPost) {
                 board.addView();
             }
-            return BoardDto.createDto(board);
+
+            BoardDto boardDto= BoardDto.createDto(board);
+            boardDto.addComments(board);
+
+            return boardDto;
         }).orElseThrow(() ->
                 new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
     }

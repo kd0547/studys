@@ -1,9 +1,13 @@
 package com.example.boardexample.dto;
 
 import com.example.boardexample.entity.Board;
+import com.example.boardexample.entity.Comment;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class BoardDto {
@@ -23,6 +27,8 @@ public class BoardDto {
 
     private int viewCount;
 
+    private List<CommentDto> comments;
+
     public static BoardDto createDto(Board board) {
         BoardDto boardDto = new BoardDto();
         boardDto.setId(board.getId());
@@ -34,5 +40,13 @@ public class BoardDto {
         boardDto.setLike(board.getLikes());
         boardDto.setViewCount(board.getViewCount());
         return boardDto;
+    }
+    public void addComments(Board board) {
+
+        comments =  board.getComments()
+                .stream()
+                .map(Comment::CreateCommentDto)
+                .collect(Collectors.toList());
+
     }
 }
