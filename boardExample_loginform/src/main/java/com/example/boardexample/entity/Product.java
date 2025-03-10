@@ -1,10 +1,14 @@
 package com.example.boardexample.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
 public class Product {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
