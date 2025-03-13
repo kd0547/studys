@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -11,7 +12,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
     private String username;
 
@@ -28,9 +29,15 @@ public class User {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private List<Orders> orders;
 
+    private LocalDateTime createAt;
+
+    private LocalDateTime updateAt;
+
+    private LocalDateTime accessAt;
+
     private String status;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "userCard_id")
     private UserCart userCart;
 }

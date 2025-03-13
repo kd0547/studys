@@ -20,50 +20,30 @@ fake = Faker()
 data_buffer = []
 
 insert_sql = """
-    INSERT INTO product (id, name,description,price,stock,created_at,updated_at,category_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+    INSERT INTO category (id, category_code,parent_id) VALUES (%s, %s, %s)
 """
 
 #최상위 카테고리 설정
 root_category = [10001,20001,30001,40001,50001,60001,70001,80001,90001,100001]
-#category_id = 1
+category_id = 1
 
-#for category in root_category:
-#    data_buffer.append((category_id, category))
-#    category_id += 1
+for category in root_category:
+    data_buffer.append((category_id, category,None))
+    category_id += 1
 
 #중위 카테고리 설정
-count = 20001
-for category_id in range(13,111):
-    for i in range(1, 10001):
-        product_id = count
-        product_name = fake.company()  # 제품명은 회사명이나 상품명을 활용할 수 있음
-        product_description = fake.text(max_nb_chars=200)  # 간단한 설명
-        product_price = float(fake.pydecimal(left_digits=3, right_digits=2, positive=True))
-        product_stock = fake.random_int(min=0, max=1000)
-        product_created_at = fake.date_time_this_year()
-        product_updated_at = fake.date_time_this_year()
-        # category_id는 미리 정의한 목록에서 랜덤 선택 (기존 값 유지)
-        product_category_id = category_id
-
-        data_buffer.append((
-            product_id,
-            product_name,
-            product_description,
-            product_price,
-            product_stock,
-            product_created_at,
-            product_updated_at,
-            product_category_id
-        ))
+count = 1
+parent_id = 1
+for category in root_category:
+    for _ in range(100):
+        data_buffer.append((category_id, (category + count), parent_id))
+        category_id += 1
         count += 1
-    print(f"Inserted {len(data_buffer)} comments...")
 
-    cursor.executemany(insert_sql, data_buffer)
-    conn.commit()
-    data_buffer.clear()
+    parent_id += 1
 
-
-
+cursor.executemany(insert_sql, data_buffer)
+conn.commit()
 
 # DB 연결 닫기
 cursor.close()

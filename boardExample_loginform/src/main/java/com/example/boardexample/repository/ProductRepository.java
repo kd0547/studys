@@ -21,4 +21,12 @@ public class ProductRepository {
                 .setFirstResult(0)
                 .getResultList();
     }
+
+    public List<Product> findProducts(List<Long> productIds) {
+        List<Product> products =  em.createQuery("select p from Product p where id IN :ids",Product.class)
+                .setParameter("ids",productIds)
+                .getResultList();
+
+        return products;
+    }
 }

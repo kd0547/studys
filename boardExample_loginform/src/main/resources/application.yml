@@ -2,16 +2,30 @@ spring:
   application:
     name: boardExample
 
+
   datasource:
     username: test_user
     password: test_password
     url: jdbc:mysql://localhost:3307/test_db
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
+        show_sql: false
+        format_sql: false
         dialect: org.hibernate.dialect.MySQL8Dialect
+
+  logging:
+    level:
+      root: info
+      org.springframework.dao: debug
+      org.hibernate.exception: debug
+      org.hibernate.engine.jdbc.spi.SqlExceptionHelper: debug
+      org.hibernate.resource.transaction: debug

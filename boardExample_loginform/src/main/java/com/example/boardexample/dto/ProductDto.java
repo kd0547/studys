@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class ProductDto {
-    private int id;
+    private Long id;
 
     private String name;
 
@@ -15,17 +15,28 @@ public class ProductDto {
 
     private double price;
 
+    private int count;
+
     private Category category;
 
     public ProductDto (){
 
     }
-    public ProductDto (int id,String name,String description,double price ,Category category) {
+    public ProductDto (Long id,String name,String description,double price ,Category category) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.category = category;
+    }
+
+    public ProductDto (Long id,String name,String description,double price ,Category category,int count) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.category = category;
+        this.count = count;
     }
 
 

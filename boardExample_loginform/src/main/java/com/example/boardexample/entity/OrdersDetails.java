@@ -1,9 +1,13 @@
 package com.example.boardexample.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
+@Setter
+@Getter
 @Entity
 public class OrdersDetails {
 
@@ -20,8 +24,15 @@ public class OrdersDetails {
     private Product product;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private Double price;
 
     @Column(nullable = false)
     private int quantity;
+
+
+    public void addProduct(Product product,int count) {
+        this.product = product;
+        this.quantity = count;
+        this.price = (double) (product.getPrice() * count);
+    }
 }
