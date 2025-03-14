@@ -8,7 +8,7 @@ url = "http://localhost:8080/test/order/new"
 
 products = []
 
-for _ in range(1000000):
+for _ in range(1000):
     member_id = random.randint(1, 10000000)
     num_products = random.randint(1, 10)
 

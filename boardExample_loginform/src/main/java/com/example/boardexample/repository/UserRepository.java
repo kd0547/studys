@@ -19,4 +19,10 @@ public class UserRepository {
         return Optional.ofNullable(findUser);
     }
 
+    public User selectUserProduct(Long id) {
+        User userProxy = em.getReference(User.class,id);
+
+        return userProxy;
+    }
+
 }

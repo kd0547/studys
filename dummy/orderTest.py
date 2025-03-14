@@ -13,6 +13,6 @@ def send_request():
     return response.status_code, response.json()
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
-    futures = [executor.submit(send_request) for _ in range(1000)]
+    futures = [executor.submit(send_request) for _ in range(100000)]
     for future in concurrent.futures.as_completed(futures):
         print(future.result())

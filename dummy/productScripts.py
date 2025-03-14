@@ -1,11 +1,10 @@
-
-
-
 from faker import Faker
+import faker_commerce
 import mysql.connector
 import random
 
 fake = Faker()
+fake.add_provider(faker_commerce.Provider)
 
 conn = mysql.connector.connect(
     host='localhost',       # 예: 'localhost' 또는 실제 호스트 주소
@@ -15,10 +14,6 @@ conn = mysql.connector.connect(
     port='3307'
 )
 cursor = conn.cursor()
-
-
-# Faker 라이브러리 초기화
-fake = Faker()
 
 data_buffer = []
 
@@ -35,11 +30,11 @@ root_category = [10001,20001,30001,40001,50001,60001,70001,80001,90001,100001]
 #    category_id += 1
 
 #중위 카테고리 설정
-count = 20001
-for category_id in range(13,111):
-    for i in range(1, 10001):
+count = 1
+for category_id in range(11,1011):
+    for _ in range(1, 10001):
         product_id = count
-        product_name = fake.company()  # 제품명은 회사명이나 상품명을 활용할 수 있음
+        product_name = fake.ecommerce_name()  # 제품명은 회사명이나 상품명을 활용할 수 있음
         product_description = fake.text(max_nb_chars=200)  # 간단한 설명
         product_price = float(fake.pydecimal(left_digits=3, right_digits=2, positive=True))
         product_stock = fake.random_int(min=0, max=1000)

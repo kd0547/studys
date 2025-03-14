@@ -8,6 +8,7 @@ import com.example.boardexample.entity.User;
 import com.example.boardexample.repository.OrderRepository;
 import com.example.boardexample.repository.ProductRepository;
 import com.example.boardexample.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Lock;
@@ -29,10 +30,10 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     //@Lock(LockModeType.PESSIMISTIC_WRITE)
     public Long OrderSave(Long userId, List<ProductDto> productDtos) {
-        User findUser = userRepository.findUserById(userId)
-                 .orElseThrow(() -> new IllegalArgumentException("not found User"));
+        User findUser = userRepository.selectUserProduct(userId);
 
 
         List<Long> productIds = productDtos.stream()
