@@ -25,4 +25,7 @@ public class UserRepository {
         return userProxy;
     }
 
+    public void save(User user) {
+        em.persist(user);
+    }
 }

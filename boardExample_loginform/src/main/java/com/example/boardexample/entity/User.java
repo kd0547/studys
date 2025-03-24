@@ -1,12 +1,16 @@
 package com.example.boardexample.entity;
 
+import com.example.boardexample.dto.UserDto;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Setter @Getter
 @Entity
 public class User {
 
@@ -33,11 +37,25 @@ public class User {
 
     private LocalDateTime updateAt;
 
+    private boolean isActive = false;
+
     private LocalDateTime accessAt;
 
     private String status;
 
+
     @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "userCard_id")
     private UserCart userCart;
+
+    public static User createUser(UserDto userDto) {
+        User user = new User();
+        user.setCreateAt(LocalDateTime.now());
+        user.setEmail(userDto.getEmail());
+        user.setUsername(userDto.getUsername());
+        user.setPassword(userDto.getPassword());
+        return user;
+    }
+
+
 }
