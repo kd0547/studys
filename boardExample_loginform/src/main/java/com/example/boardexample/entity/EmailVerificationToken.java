@@ -34,6 +34,22 @@ public class EmailVerificationToken {
     private LocalDateTime deleted_at;
 
 
+    @Column(name = "retry_token")
+    private String retryToken;
+
+    @Column(name = "retry_token_expires_at")
+    private LocalDateTime retryTokenExpiresAt;
+
+    public static EmailVerificationToken createToken(User user, String toekn, Long expiredMinutes) {
+        EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
+        emailVerificationToken.setUser(user);
+        emailVerificationToken.setToken(toekn);
+        emailVerificationToken.setTime(expiredMinutes);
+
+        return emailVerificationToken;
+    }
+
+
     public void isExpires() {
         LocalDateTime now = LocalDateTime.now();
 

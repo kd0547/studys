@@ -48,6 +48,7 @@ public class User {
     @JoinColumn(name = "userCard_id")
     private UserCart userCart;
 
+
     public static User createUser(UserDto userDto) {
         User user = new User();
         user.setCreateAt(LocalDateTime.now());

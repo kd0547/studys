@@ -1,17 +1,18 @@
 package com.example.boardexample.service;
 
 import com.example.boardexample.Util.AuthUtil;
+import com.example.boardexample.dto.EmailVerificationPayload;
+import com.example.boardexample.dto.RetryTokenDto;
 import com.example.boardexample.dto.UserDto;
+import com.example.boardexample.dto.SignupDto;
 import com.example.boardexample.entity.EmailVerificationToken;
 import com.example.boardexample.entity.User;
 import com.example.boardexample.repository.EmailVerificationTokenRepository;
 import com.example.boardexample.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.misc.LogManager;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Service
@@ -19,29 +20,44 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AuthUtil authUtil;
-    private EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final KafkaTemplate<String,Object> kafkaTemplate;
 
     private final Long EXPIRED_MINUTES = 15L;
 
-    @Transactional
-    public Long signup(UserDto signupDto) {
+    private final String TOPIC_NAME = "email-auth-topic";
 
-        User user = User.createUser(signupDto);
+    @Transactional
+    public SignupDto signup(UserDto userDto) {
+
+        //create user
+        User user = User.createUser(userDto);
         userRepository.save(user);
 
-        EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
-        emailVerificationToken.setUser(user);
-        emailVerificationToken.setToken(authUtil.createToekn());
-        emailVerificationToken.setTime(EXPIRED_MINUTES);
-
+        //create email token
+        EmailVerificationToken emailVerificationToken = EmailVerificationToken.createToken(
+                user,
+                authUtil.createToekn(),
+                EXPIRED_MINUTES);
         emailVerificationTokenRepository.save(emailVerificationToken);
 
+        EmailVerificationPayload payload = new EmailVerificationPayload(
+                user.getEmail(),
+                emailVerificationToken.getToken(),
+                emailVerificationToken.getExpires_at()
+        );
+
         //kafka
+        kafkaTemplate.executeInTransaction(kafka->{
+            kafkaTemplate.send(TOPIC_NAME,payload);
+            return true;
+        });
 
-
-        return null;
+        return new SignupDto(user.getId(), emailVerificationToken.getId());
     }
 
 
-
+    public void retry(RetryTokenDto retryTokenDto) {
+        userRepository.findRetryToken(retryTokenDto.getId());
+    }
 }
